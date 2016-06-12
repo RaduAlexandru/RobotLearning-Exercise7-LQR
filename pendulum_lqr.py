@@ -64,8 +64,8 @@ class poleObj(object):
         self.p2_y=self.p2_y-y_bak
 
         #rotate
-        self.p2_x=pole_length*100*cos(self.angle_drawing)
-        self.p2_y=pole_length*100*sin(self.angle_drawing)
+        self.p2_x=pole_length*70*cos(self.angle_drawing)
+        self.p2_y=pole_length*70*sin(self.angle_drawing)
 
         #translate back
         self.p1_x=self.p1_x+x_bak
@@ -94,7 +94,7 @@ def part_7_1():
     canv.pack(fill='both', expand=True)
 
     #Create objects
-    pole = poleObj(canv_width/2, canv_height-100, canv_width/2, canv_height-100-pole_length, initial_angle, initial_speed) #point 1 x and y, point 2 x and y , angle and angular speed
+    pole = poleObj(canv_width/2, canv_height-200, canv_width/2, canv_height-200-pole_length, initial_angle, initial_speed) #point 1 x and y, point 2 x and y , angle and angular speed
 
     #Draw objects
     right = canv.create_line(canv_width, 0, canv_width, canv_height, fill='blue')
@@ -141,7 +141,7 @@ def part_7_2():
     canv.pack(fill='both', expand=True)
 
     #Create objects
-    pole = poleObj(canv_width/2, canv_height-100, canv_width/2, canv_height-100-pole_length, initial_angle, initial_speed) #point 1 x and y, point 2 x and y , angle and angular speed
+    pole = poleObj(canv_width/2, canv_height-200, canv_width/2, canv_height-200-pole_length, initial_angle, initial_speed) #point 1 x and y, point 2 x and y , angle and angular speed
 
     #Draw objects
     right = canv.create_line(canv_width, 0, canv_width, canv_height, fill='blue')
@@ -155,12 +155,12 @@ def part_7_2():
         canv.delete("all")
 
 
-
+        #Move
         s=np.array([pole.angle,pole.angular_speed])[:,None] #column vector for state
         A= np.matrix( ((1, 0.1), (0.1*g/pole.length,  1.0)) )
         B = np.matrix( ((0.0), (0.1)) ) [:,None]
 
-        s=A*s;
+        s=A*s ;
 
         #print "angle from matrix is", s.item (0,0)
         #print "speed from matrix is", s.item (1,0)
@@ -172,6 +172,68 @@ def part_7_2():
         print "speed is", pole.angular_speed
 
         pole.rotate(pole.angle)
+
+
+        #draw
+        pole.draw(canv)
+        right = canv.create_line(canv_width, 0, canv_width, canv_height, fill='blue')
+        left = canv.create_line(0, 0, 0, canv_height, fill='red')
+
+        canv.update()
+        iters=iters+1
+
+    root.destroy()
+
+
+
+def part_7_3():
+    print "part 7.3"
+
+    initial_angle=0.3
+    initial_speed=-0.5
+
+    root = Tk()
+    canv = Canvas(root, width=canv_width, height=canv_height)
+    canv.pack(fill='both', expand=True)
+
+    #Create objects
+    pole = poleObj(canv_width/2, canv_height-200, canv_width/2, canv_height-200-pole_length, initial_angle, initial_speed) #point 1 x and y, point 2 x and y , angle and angular speed
+
+    #Draw objects
+    right = canv.create_line(canv_width, 0, canv_width, canv_height, fill='blue')
+    left = canv.create_line(0, 0, 0, canv_height, fill='red')
+
+    pole.draw(canv)
+
+
+    U= np.matrix( ((1, 0.1), (0.1,  1.0)) )
+    V=42
+
+
+    iters=0
+    while iters < 300:
+        time.sleep(time_step)
+        canv.delete("all")
+
+
+        #Move
+        s=np.array([pole.angle,pole.angular_speed])[:,None] #column vector for state
+        A= np.matrix( ((1, 0.1), (0.1*g/pole.length,  1.0)) )
+        B = np.matrix( ((0.0), (0.1)) ) [:,None]
+
+        s=A*s ;
+
+        pole.angle=s.item (0,0)
+        pole.angle_drawing= pole.angle +deg_90
+        pole.angular_speed=s.item (1,0)
+
+        pole.rotate(pole.angle)
+
+
+        #reward
+        a=pole.angular_acc
+        reward=-(s.transpose()*U*s + a*V*a)
+        print "reward is", reward
 
 
         #draw
@@ -259,8 +321,9 @@ def run_6_2_episode(k1,k2,k3,k4):
 
 if __name__ == "__main__":
 
-    part_7_1()
+    #part_7_1()
     #part_7_2()
+    part_7_3()
 
 
     #main()
