@@ -82,14 +82,9 @@ class poleObj(object):
 
 
 
-def simulate_timestep():
-    print "simulate time_step"
-
-
-
 
 def part_7_1():
-    print "hallo"
+    print "part 7.1"
 
     initial_angle=0.3
     initial_speed=-0.5
@@ -108,17 +103,73 @@ def part_7_1():
     pole.draw(canv)
 
     iters=0
-    while iters < 3000:
+    while iters < 300:
         time.sleep(time_step)
         canv.delete("all")
 
 
         #move the pendulum
         pole.angle=pole.angle+time_step*pole.angular_speed;
-        pole.angle_drawing=pole.angle_drawing +time_step*pole.angular_speed
+        pole.angle_drawing= pole.angle +deg_90
+        #pole.angle_drawing=pole.angle_drawing +time_step*pole.angular_speed
 
         angle_acceleration=g/pole.length* sin(pole.angle);
         pole.angular_speed=pole.angular_speed+ time_step*angle_acceleration
+
+        pole.rotate(pole.angle)
+
+
+        #draw
+        pole.draw(canv)
+        right = canv.create_line(canv_width, 0, canv_width, canv_height, fill='blue')
+        left = canv.create_line(0, 0, 0, canv_height, fill='red')
+
+        canv.update()
+        iters=iters+1
+
+    root.destroy()
+
+
+def part_7_2():
+    print "part 7.2"
+
+    initial_angle=0.3
+    initial_speed=-0.5
+
+    root = Tk()
+    canv = Canvas(root, width=canv_width, height=canv_height)
+    canv.pack(fill='both', expand=True)
+
+    #Create objects
+    pole = poleObj(canv_width/2, canv_height-100, canv_width/2, canv_height-100-pole_length, initial_angle, initial_speed) #point 1 x and y, point 2 x and y , angle and angular speed
+
+    #Draw objects
+    right = canv.create_line(canv_width, 0, canv_width, canv_height, fill='blue')
+    left = canv.create_line(0, 0, 0, canv_height, fill='red')
+
+    pole.draw(canv)
+
+    iters=0
+    while iters < 300:
+        time.sleep(time_step)
+        canv.delete("all")
+
+
+
+        s=np.array([pole.angle,pole.angular_speed])[:,None] #column vector for state
+        A= np.matrix( ((1, 0.1), (0.1*g/pole.length,  1.0)) )
+        B = np.matrix( ((0.0), (0.1)) ) [:,None]
+
+        s=A*s;
+
+        #print "angle from matrix is", s.item (0,0)
+        #print "speed from matrix is", s.item (1,0)
+
+        pole.angle=s.item (0,0)
+        pole.angle_drawing= pole.angle +deg_90
+        pole.angular_speed=s.item (1,0)
+
+        print "speed is", pole.angular_speed
 
         pole.rotate(pole.angle)
 
@@ -209,8 +260,7 @@ def run_6_2_episode(k1,k2,k3,k4):
 if __name__ == "__main__":
 
     part_7_1()
+    #part_7_2()
 
-    #part_6_1()
-    #part_6_2()
-    #brute_force()
+
     #main()
