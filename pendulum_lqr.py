@@ -92,7 +92,7 @@ def part_7_1():
     print "hallo"
 
     initial_angle=0.3
-    initial_speed=-0.0
+    initial_speed=-0.5
 
     root = Tk()
     canv = Canvas(root, width=canv_width, height=canv_height)
@@ -111,11 +111,6 @@ def part_7_1():
     while iters < 3000:
         time.sleep(time_step)
         canv.delete("all")
-
-
-        #debug
-        print "pole angle is", pole.angle
-        print "pole speed is", pole.angular_speed
 
 
         #move the pendulum
